@@ -264,4 +264,27 @@ class CheckingAccount(Account):
                     json.dump(data, obj)
 
 
-welcome()
+# welcome()
+
+
+
+with open("users.json") as jFile:
+    jObject = json.load(jFile)
+    jFile.close()
+
+
+
+testUser = jObject['1']
+
+print(testUser)
+
+sean = jObject["2"]
+print(sean)
+
+
+
+
+acc = Account(123,"testacc", 250, "Savings")
+print(acc)
+
+
