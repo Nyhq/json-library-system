@@ -551,23 +551,14 @@ welcome()
 with open("user.txt") as jFile:
     jObject = json.load(jFile)
     jFile.close()
-
-
 with open("customer.txt") as jFile:
     jObject = json.load(jFile)
     jFile.close()
-
 var = input("Acc No")
-
 testUser = jObject[var]['Account Name']
-
-
 print(testUser)
-
 sean = jObject["2"]
 print(sean)
-
-
 acc = Account(123,"testacc", 250, "Savings")
 print(acc)
 """
