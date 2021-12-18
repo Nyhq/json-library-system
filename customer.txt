@@ -1,1 +1,14 @@
-[{"215": [{"Account Number": 215, "Account Name": "Sean", "Opening Balance": 500, "Account Type": "Savings"}]}, {"136": [{"Test": {"Account Number": 136, "Account Name": "Test", "Opening Balance": 500, "Account Type": "Checking"}}]}]
+{
+  "71": {
+    "Account Number": 71,
+    "Account Name": "Test",
+    "Account Balance": 1585,
+    "Account Type": "Checking"
+  },
+  "197": {
+    "Account Number": 197,
+    "Account Name": "Gagaga",
+    "Account Balance": 3352,
+    "Account Type": "Checking"
+  }
+}

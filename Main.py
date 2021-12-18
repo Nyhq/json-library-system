@@ -11,7 +11,6 @@ def acc_no_gen():
     num = randint(range_start, range_end)
     return num
 
-
 def user():
     print("*************************************")
     print("=<< 1. Create new bank account    >>=")
@@ -41,55 +40,46 @@ def user():
     elif choice == "2":
         account()
     elif choice == "3":
-        test()
-        #delete_account()
+        delete()
     elif choice == "4":
+        withdraw()
+    elif choice == "5":
+        deposit()
+    elif choice == "6":
+        transfer()
+    elif choice == "7":
         welcome()
     else:
         print('Wrong input')
         user()
-
 
 def createSavings():
     account = SavingsAccount(0, '', 0, '')
     account.createSavingsAccount()
     user()
 
-
 def createChecking():
     account = CheckingAccount(0, '', 0, '')
     account.createCheckingAccount()
     user()
 
-
 def account():
     try:
-        acc_num_input = int(input(f"\nEnter customer's account number:"))
-        with open('customer.txt') as cust_file:
-            data = json.load(cust_file)
-            found_flag = False
-        for user_data in data:
-            for user_data_key in user_data.keys():
-                for user_details in user_data[user_data_key]:
-                    if acc_num_input in user_details.values():
-                        found_flag = True
-                        print('\nAccount Found ! See details below:')
-                        print(user_details)
-                        user()
-        if found_flag == False:
-            print('\nAccount Not Found! You can register a new one if you wish.\n')
-            user()
+        with open("customer.txt", "r+") as jFile:
+            jObject = json.load(jFile)
+
+        var = input("Enter account number:")
+        
+        result = jObject[var]
+        
+        print(result)
+       
     except ValueError:
         print('Only integers are allowed')
         user()
 
-
 def exit():
-    file = open('customer.txt', 'r+')
-    file.truncate()
-    file.close()
     print("Thank you for using our banking system!")
-
 
 def login():
     print(f"Enter Details")
@@ -97,13 +87,12 @@ def login():
     password = input(f'Please enter your password:\n')
     with open('user.txt') as json_file:
         data = json.load(json_file)
-        while (username != (data['User 1']['Username']) or password != (data['User 1']['Password'])) and (username != (data['User 2']['Username']) or password != (data['User1 2']['Password'])):
+        while (username != (data['1']['Username']) or password != (data['1']['Password'])) and (username != (data['2']['Username']) or password != (data['2']['Password'])):
             print('Username or password not found')
             login()
         else:
             print(f'Welcome {username}')
             user()
-
 
 def welcome():
     print("=====================================")
@@ -121,40 +110,66 @@ def welcome():
         print('Wrong input')
         welcome()
 
-# def delete_account():
-#     try:
-#         acc_num_input = int(input(f"\nEnter customer's account number:"))
-#         with open('customer.txt') as cust_file:
-#             data = json.load(cust_file)
-#             found_flag = False
-#         for user_data in data:
-#             for user_data_key in user_data.keys():
-#                 for user_details in user_data[user_data_key]:
-#                     if acc_num_input in user_details.values():
-#                         found_flag = True
-#                         print('\nAccount Found ! See details below:')
-#                         del data.pop('test')
-#                         user()
-#         if found_flag == False:
-#             print('\nAccount Not Found! You can register a new one if you wish.\n')
-#             user()
-#     except ValueError:
-#         print('Only integers are allowed')
-#         user()
+def delete():
+    var = input("=<< Enter account number you wish to close: >>=\n")
+    with open("customer.txt", "r+") as jFile:
+        jObject = json.load(jFile)
+        del(jObject[var])
+        jFile.seek(0)
+        json.dump(jObject, jFile, indent = 2)
+        jFile.truncate()
+    
+    user()
+    # x = jObject.pop("188")
+    
+    # with open("customer.txt", "r+") as jFile:
+    #   jObject = json.dump(jObject, jFile, indent = 2)
+    # var = input("Please enter the account number that you wish to close:")
+    # x = jObject.pop(var)
 
-def test():
-    with open('customer.txt') as cust_file:
-        data = json.load(cust_file)
- 
-        # Print the type of data variable
-        print("Type:", type(data))
+def withdraw():
+    var = input("Enter account number you wish to withdraw from:\n")
+    amount = int(input("Enter amount you with to withdraw:\n"))
+    with open("customer.txt", "r+") as jFile:
+        jObject = json.load(jFile)
+        jObject[var]["Account Balance"] -= amount
+        jFile.seek(0)
+        json.dump(jObject, jFile, indent = 2)
+        jFile.truncate()
+    
+    user()
 
-        accountID = data[0]["Test:Account Number"]
-        print(accountID)
-        # Print the data of dictionary
-        # print("\nAcc1:", data["Test"][0])
-        # print("\nAcc2:", data["Test2"][0])
+def deposit():
+    var = input("Enter account number you wish to deposit into:\n")
+    amount = int(input("Enter amount you with to deposit:\n"))
+    with open("customer.txt", "r+") as jFile:
+        jObject = json.load(jFile)
+        jObject[var]["Account Balance"] += amount
+        jFile.seek(0)
+        json.dump(jObject, jFile, indent = 2)
+        jFile.truncate()
+    
+    user()
 
+def balence():
+    return
+
+def transfer():
+    var1 = input("Enter account number you wish to transfer from:\n")
+    var2 = input("Enter account number you wish to transfer to:\n")
+    amount = int(input("Enter amount you with to transfer:\n"))
+    with open("customer.txt", "r+") as jFile:
+        jObject = json.load(jFile)
+        jObject[var1]["Account Balance"] -= amount
+        jObject[var2]["Account Balance"] += amount
+        jFile.seek(0)
+        json.dump(jObject, jFile, indent = 2)
+        jFile.truncate()
+    
+    user()
+
+def selectAccount():
+    acc_select = input("Enter account you wish to select:")
 
 class Account(object):
     def __init__(self, acc_no, name, balance, acc_type, transactions=None):
@@ -167,25 +182,25 @@ class Account(object):
         else:
             self.transactions = transactions
 
-    def __str__(self):
-        result = "Account Name: " + self.name + "\n"
-        result += "Account number: " + str(self.acc_no) + "\n"
-        result += "Account Balance: " + str(self.balance) + "\n"
+    # def __str__(self):
+    #     result = "Account Name: " + self.name + "\n"
+    #     result += "Account number: " + str(self.acc_no) + "\n"
+    #     result += "Account Balance: " + str(self.balance) + "\n"
 
-        last = len(self.transactions)
-        first = last - 5
-        if first < 0:
-            first = 0
+    #     last = len(self.transactions)
+    #     first = last - 5
+    #     if first < 0:
+    #         first = 0
 
-        if last == 0:
-            return result
+    #     if last == 0:
+    #         return result
 
-        result += "Transactions \n"
-        for index in range(last, first, -1):
-            result += "#" + str(index) + " acc_Type: " + self.transactions[index - 1][0] + ". Amount: " + str(
-                self.transactions[index - 1][1]) + "\n"
+    #     result += "Transactions \n"
+    #     for index in range(last, first, -1):
+    #         result += "#" + str(index) + " acc_Type: " + self.transactions[index - 1][0] + ". Amount: " + str(
+    #             self.transactions[index - 1][1]) + "\n"
 
-        return result
+    #    return result
 
 
 class SavingsAccount(Account):
@@ -198,30 +213,27 @@ class SavingsAccount(Account):
         self.name = input("Enter the account holder name: ")
         self.balance = int(input("Enter The Initial deposit:"))
         self.acc_type = "Savings"
-
-        customer_file_data = []
-        customer_banking_data = {
+        
+        customer_input_data = {
             self.acc_no: [
                 {
                     'Account Number': self.acc_no,
                     'Account Name': self.name.title(),
-                    'Opening Balance': self.balance,
+                    'Account Balance': self.balance,
                     'Account Type': self.acc_type
                 }
             ],
         }
-        print(
-            f"An account with account number {self.acc_no} has been opened for {self.name}")
+        print(f"An account with account number {self.acc_no} has been opened for {self.name}")
         if os.stat('customer.txt').st_size == 0:
-            customer_file_data.append(customer_banking_data)
             with open('customer.txt', 'w') as obj:
-                json.dump(customer_file_data, obj)
+                json.dump(customer_input_data, obj, indent = 2)
         else:
-            with open('customer.txt') as obj:
-                data = json.load(obj)
-                data.append(customer_banking_data)
-                with open('customer.txt', 'w') as obj:
-                    json.dump(data, obj)
+            with open('customer.txt', "r+") as obj:
+                    data = json.load(obj)
+                    data.update(customer_input_data)
+                    obj.seek(0)
+                    json.dump(data, obj, indent = 2)
                     
 
 
@@ -236,32 +248,53 @@ class CheckingAccount(Account):
         self.balance = int(input("Enter The Initial deposit:"))
         self.acc_type = "Checking"
 
-        customer_file_data = []
-        customer_banking_data = {
-            self.acc_no: [
-                {
-                    self.name.title():
+        customer_input_data = {
+            self.acc_no: 
                     {
                         'Account Number': self.acc_no,
                         'Account Name': self.name.title(),
-                        'Opening Balance': self.balance,
+                        'Account Balance': self.balance,
                         'Account Type': self.acc_type
-                    }
-                }
-            ],
+                    },
         }
-        print(
-            f"An account with account number {self.acc_no} has been opened for {self.name}")
+        
+        print(f"An account with account number {self.acc_no} has been opened for {self.name}")
         if os.stat('customer.txt').st_size == 0:
-            customer_file_data.append(customer_banking_data)
             with open('customer.txt', 'w') as obj:
-                json.dump(customer_file_data, obj)
+                json.dump(customer_input_data, obj, indent = 2)
         else:
-            with open('customer.txt') as obj:
-                data = json.load(obj)
-                data.append(customer_banking_data)
-                with open('customer.txt', 'w') as obj:
-                    json.dump(data, obj)
+            with open('customer.txt', "r+") as obj:
+                    data = json.load(obj)
+                    data.update(customer_input_data)
+                    obj.seek(0)
+                    json.dump(data, obj, indent = 2)
 
 
 welcome()
+
+
+
+# with open("user.txt") as jFile:
+#     jObject = json.load(jFile)
+#     jFile.close()
+
+
+# with open("customer.txt") as jFile:
+#     jObject = json.load(jFile)
+#     jFile.close()
+
+# var = input("Acc No")
+
+# testUser = jObject[var]['Account Name']
+
+
+# print(testUser)
+
+# sean = jObject["2"]
+# print(sean)
+
+
+
+
+# acc = Account(123,"testacc", 250, "Savings")
+# print(acc)
