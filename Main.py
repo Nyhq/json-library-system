@@ -245,32 +245,36 @@ class SavingsAccount(Account):
         super().__init__(acc_no, name, balance, acc_type, transactions=transactions)
 
     def createSavingsAccount(self):
-
-        self.acc_no = acc_no_gen()
-        self.name = input("Enter the account holder name: ")
-        self.balance = int(input("Enter The Initial deposit:"))
-        self.acc_type = "Savings"
-        
-        customer_input_data = {
-            self.acc_no: 
-                {
-                    'Account Number': self.acc_no,
-                    'Account Name': self.name.title(),
-                    'Account Balance': self.balance,
-                    'Account Type': self.acc_type
-                },
-        }
-        print(f"An account with account number {self.acc_no} has been opened for {self.name}")
-        if os.stat('customer.txt').st_size == 0:
-            with open('customer.txt', 'w') as obj:
-                json.dump(customer_input_data, obj, indent = 2)
-        else:
-            with open('customer.txt', "r+") as obj:
-                    data = json.load(obj)
-                    data.update(customer_input_data)
-                    obj.seek(0)
-                    json.dump(data, obj, indent = 2)
-                    
+        age_chk = int(input("Enter your age:"))
+        if age_chk < 14 :
+            print("User too young for selected account type!")
+            user()
+        else: 
+            self.acc_no = acc_no_gen()
+            self.name = input("Enter the account holder name:")
+            self.balance = int(input("Enter The Initial deposit:"))
+            self.acc_type = "Savings"
+            
+            customer_input_data = {
+                self.acc_no: 
+                    {
+                        'Account Number': self.acc_no,
+                        'Account Name': self.name.title(),
+                        'Account Balance': self.balance,
+                        'Account Type': self.acc_type
+                    },
+            }
+            print(f"An account with account number {self.acc_no} has been opened for {self.name}")
+            if os.stat('customer.txt').st_size == 0:
+                with open('customer.txt', 'w') as obj:
+                    json.dump(customer_input_data, obj, indent = 2)
+            else:
+                with open('customer.txt', "r+") as obj:
+                        data = json.load(obj)
+                        data.update(customer_input_data)
+                        obj.seek(0)
+                        json.dump(data, obj, indent = 2)
+                        
 
 
 class CheckingAccount(Account):
@@ -278,32 +282,36 @@ class CheckingAccount(Account):
         super().__init__(acc_no, name, balance, acc_type, transactions=transactions)
 
     def createCheckingAccount(self):
-        
-        self.acc_no = acc_no_gen()
-        self.name = input("Enter the account holder name: ")
-        self.balance = int(input("Enter The Initial deposit:"))
-        self.acc_type = "Checking"
-
-        customer_input_data = {
-            self.acc_no: 
-                    {
-                        'Account Number': self.acc_no,
-                        'Account Name': self.name.title(),
-                        'Account Balance': self.balance,
-                        'Account Type': self.acc_type
-                    },
-        }
-        
-        print(f"An account with account number {self.acc_no} has been opened for {self.name}")
-        if os.stat('customer.txt').st_size == 0:
-            with open('customer.txt', 'w') as obj:
-                json.dump(customer_input_data, obj, indent = 2)
+        age_chk = int(input("Enter your age:"))
+        if age_chk < 18 :
+            print("User too young for selected account type!")
+            user()
         else:
-            with open('customer.txt', "r+") as obj:
-                    data = json.load(obj)
-                    data.update(customer_input_data)
-                    obj.seek(0)
-                    json.dump(data, obj, indent = 2)
+            self.acc_no = acc_no_gen()
+            self.name = input("Enter the account holder name: ")
+            self.balance = int(input("Enter The Initial deposit:"))
+            self.acc_type = "Checking"
+
+            customer_input_data = {
+                self.acc_no: 
+                        {
+                            'Account Number': self.acc_no,
+                            'Account Name': self.name.title(),
+                            'Account Balance': self.balance,
+                            'Account Type': self.acc_type
+                        },
+            }
+            
+            print(f"An account with account number {self.acc_no} has been opened for {self.name}")
+            if os.stat('customer.txt').st_size == 0:
+                with open('customer.txt', 'w') as obj:
+                    json.dump(customer_input_data, obj, indent = 2)
+            else:
+                with open('customer.txt', "r+") as obj:
+                        data = json.load(obj)
+                        data.update(customer_input_data)
+                        obj.seek(0)
+                        json.dump(data, obj, indent = 2)
 
 
 welcome()
