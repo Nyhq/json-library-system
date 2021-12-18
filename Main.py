@@ -25,8 +25,8 @@ def user():
     if choice == "1":
         print("*************************************")
         print("=<< 1. Create Checking Account    >>=")
-        print("=<< 2. Check Savings  Account    >>=")
-        print("=<< 3. Exit                     >>=")
+        print("=<< 2. Check Savings  Account     >>=")
+        print("=<< 3. Exit                       >>=")
         print("*************************************")
         acc_choice = input(f'Select your choice number from the above menu:\n')
         if acc_choice == "1":
@@ -88,26 +88,56 @@ def login():
     print(f"Enter Details")
     username = input("Please enter your username:\n")
     password = input(f'Please enter your password:\n')
-    with open('user.txt') as json_file:
-        data = json.load(json_file)
-        while (username != (data['1']['Username']) or password != (data['1']['Password'])) and (username != (data['2']['Username']) or password != (data['2']['Password'])):
-            print('Username or password not found')
-            login()
-        else:
-            print(f'Welcome {username}')
-            user()
+    with open('user.txt') as jFile:
+        jObject = json.load(jFile)
+        
+    if jObject[username]["Username"] == username and jObject[username]["Password"] == password:
+           print(f"Welcome {username}")
+    else:
+        print("Not Epic")
+def register():
+    print(f"Enter Details")
+    username = input("Please enter your username:\n")
+    password = input(f'Please enter your password:\n')
+    email = input(f'Please enter your email:\n')
+    name = input(f'Please enter your full name:\n')
+   
+    register_input = {
+        username:
+            {
+                "Username":username,
+                "Password":password,
+                "Email":email,
+                "Full Name":name,
+            },
+    }
+    if os.stat('customer.txt').st_size == 0:
+        with open('user.txt', "r") as jFile:
+            json.dump(register_input, jFile, indent = 2)
+    else:   
+        with open('user.txt', "r+") as jFile:
+                    jObject = json.load(jFile)
+                    jObject.update(register_input)
+                    jFile.seek(0)
+                    json.dump(jObject, jFile, indent = 2)
+    login()
+    
+       
 
 def welcome():
     print("=====================================")
     print("     ----Welcome to Bank----       ")
     print("*************************************")
-    print("=<< 1. Login:                >>=")
-    print("=<< 2. Exit:                  >>=")
+    print("=<< 1. Login:                 >>=")
+    print("=<< 2. Register:              >>=")
+    print("=<< 3. Exit:                  >>=")
     print("*************************************")
     choice = input(f'Select your choice number from the above menu:\n')
     if choice == "1":
         login()
     elif choice == "2":
+        register()
+    elif choice == "3":
         exit()
     else:
         print('Wrong input')
@@ -218,14 +248,13 @@ class SavingsAccount(Account):
         self.acc_type = "Savings"
         
         customer_input_data = {
-            self.acc_no: [
+            self.acc_no: 
                 {
                     'Account Number': self.acc_no,
                     'Account Name': self.name.title(),
                     'Account Balance': self.balance,
                     'Account Type': self.acc_type
-                }
-            ],
+                },
         }
         print(f"An account with account number {self.acc_no} has been opened for {self.name}")
         if os.stat('customer.txt').st_size == 0:
