@@ -16,7 +16,10 @@ def user():
     print("=<< 1. Create new bank account    >>=")
     print("=<< 2. Check Account Details      >>=")
     print("=<< 3. Delete Account             >>=")
-    print("=<< 3. Exit             >>=")
+    print("=<< 4. Withdraw                   >>=")
+    print("=<< 5. Deposit                    >>=")
+    print("=<< 6. Transfer                   >>=")
+    print("=<< 7. Exit                       >>=")
     print("*************************************")
     choice = input(f'Select your choice number from the above menu:\n')
     if choice == "1":
