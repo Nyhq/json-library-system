@@ -85,7 +85,8 @@ def exit():
     print("Thank you for using our banking system!")
 
 def login():
-    print(f"Enter Details")
+    print("         ------Login------           ")
+    print("*************************************")
     username = input("Please enter your username:\n")
     password = input(f'Please enter your password:\n')
     with open('user.txt') as jFile:
@@ -93,8 +94,11 @@ def login():
         
     if jObject[username]["Username"] == username and jObject[username]["Password"] == password:
            print(f"Welcome {username}")
+           user()
     else:
-        print("Not Epic")
+        print("Username or password was incorrect!")
+        login()
+        
 def register():
     print(f"Enter Details")
     username = input("Please enter your username:\n")
@@ -111,8 +115,8 @@ def register():
                 "Full Name":name,
             },
     }
-    if os.stat('customer.txt').st_size == 0:
-        with open('user.txt', "r") as jFile:
+    if os.stat('user.txt').st_size == 0:
+        with open('user.txt', "r+") as jFile:
             json.dump(register_input, jFile, indent = 2)
     else:   
         with open('user.txt', "r+") as jFile:
