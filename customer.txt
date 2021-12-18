@@ -10,5 +10,11 @@
     "Account Name": "Sean",
     "Account Balance": 30952350928,
     "Account Type": "Checking"
+  },
+  "1356": {
+    "Account Number": 1356,
+    "Account Name": "Sean",
+    "Account Balance": 0,
+    "Account Type": "Checking"
   }
 }

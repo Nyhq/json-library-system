@@ -3,6 +3,9 @@ import json
 from json.decoder import JSONDecodeError
 import os  # Used to handle files
 from random import randint  # Used to generate account numbers
+import re
+
+regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b' #Regular expression for validating user email
 
 username = ''  # Global variable to store username
 
@@ -163,9 +166,30 @@ def register():
     #Enter user details
     print(f"Enter Details")
     username = input(f"Please enter your username:\n")
+    #Ensures the inputted username is at least 5 characters long
+    if len(username) < 5:
+        print("Username must be at least 5 characters long")
+        register()
     password = input(f'Please enter your password:\n')
-    email = input(f'Please enter your email:\n')
+    #Ensures the inputted password is at least 7 characters long
+    if len(password) < 7:
+        print("Password must be at least 7 characters long")
+        register()
+        
     name = input(f'Please enter your full name:\n')
+    
+    #Ensure email inputted is valid using a regex expression
+    email = input(f'Please enter your email:\n')
+    #If email is valid print success message and direct user to the login page
+    if(re.fullmatch(regex, email)):
+        print("Account creation successful!\n")
+        print("Proceed to login\n")
+    else:
+        print("Enter a valid email")
+        register()
+    
+   
+    
 
    #Store all user input in a dictionarys
     register_input = {
@@ -228,22 +252,33 @@ def delete():
     """
     Function to delete (close) a bank account
     """
+    try:
+        #User input for account they wish to close
+        var = input("Enter account number you wish to close:\n")
+    except ValueError:
+        #If number enterred is not an int return an error
+        print("Enter a valid account number!")
+        #Direct user back to withdraw function
+        delete()
+        
 
-    #User input for account they wish to close
-    var = input("Enter account number you wish to close:\n")
+    try:
+        #Opens user file in read+
+        with open("customer.txt", "r+") as jFile:
+            #Assign loaded data to jObject variable
+            jObject = json.load(jFile)
+            #Seek to desired key and delete it
+            del(jObject[var])
+            #Seek to beginning of the file
+            jFile.seek(0)
+            #Rewrite file with correct data
+            json.dump(jObject, jFile, indent=2)
+            #Truncate new file
+            jFile.truncate()
+    except KeyError:
+        #If the username does not exist in the database print appropriate error
+        print("Account no was incorrect!")
 
-    #Opens user file in read+
-    with open("customer.txt", "r+") as jFile:
-        #Assign loaded data to jObject variable
-        jObject = json.load(jFile)
-        #Seek to desired key and delete it
-        del(jObject[var])
-        #Seek to beginning of the file
-        jFile.seek(0)
-        #Rewrite file with correct data
-        json.dump(jObject, jFile, indent=2)
-        #Truncate new file
-        jFile.truncate()
     #Direct user back to the user menu
     user()
 
@@ -252,23 +287,40 @@ def withdraw():
     """
     Function to withdraw money from a specific account
     """
-
-    #User inputs account they want to access
-    var = input("Enter account number you wish to withdraw from:\n")
-    #User input for amount they wish to withdraw
-    amount = int(input("Enter amount you with to withdraw:\n"))
-    #Opens user file in read+
-    with open("customer.txt", "r+") as jFile:
-        #Assign loaded data to jObject variable
-        jObject = json.load(jFile)
-        #Seek to inputted key and decrement the account balance variable by desired amount
-        jObject[var]["Account Balance"] -= amount
-        #Seek to beginning of the file
-        jFile.seek(0)
-        #Rewrite file with correct data
-        json.dump(jObject, jFile, indent=2)
-        #Truncate new file
-        jFile.truncate()
+    try:
+        #User inputs account they want to access
+        var = int(input("Enter account number you wish to withdraw from:\n"))
+    except ValueError:
+        #If number enterred is not an int return an error
+        print("Enter a valid account number!")
+        #Direct user back to withdraw function
+        withdraw()
+        
+    try:
+        #User input for amount they wish to withdraw
+        amount = int(input("Enter amount you with to withdraw: (Must be a whole number)\n"))
+    except ValueError:
+        #If amount enterred is not an int return an error
+        print("Amount must be a whole number!")
+        #Direct user back to withdraw function
+        withdraw()
+   
+    try:
+         #Opens user file in read+
+        with open("customer.txt", "r+") as jFile:
+            #Assign loaded data to jObject variable
+            jObject = json.load(jFile)
+            #Seek to inputted key and decrement the account balance variable by desired amount
+            jObject[var]["Account Balance"] -= amount
+            #Seek to beginning of the file
+            jFile.seek(0)
+            #Rewrite file with correct data
+            json.dump(jObject, jFile, indent=2)
+            #Truncate new file
+            jFile.truncate()
+    except KeyError:
+        #If the username does not exist in the database print appropriate error
+        print("Account no was incorrect!")
     #Direct user back to the user menu
     user()
 
@@ -277,23 +329,39 @@ def deposit():
     """
     Function to deposit money to a specific account
     """
-
-    #User inputs account they want to access
-    var = input("Enter account number you wish to deposit into:\n")
-    #User input for amount they wish to deposit
-    amount = int(input("Enter amount you with to deposit:\n"))
-    #Opens user file in read+
-    with open("customer.txt", "r+") as jFile:
-        #Assign loaded data to jObject variable
-        jObject = json.load(jFile)
-        #Seek to inputted key and increment the account balance variable by desired amount
-        jObject[var]["Account Balance"] += amount
-        #Seek to beginning of the file
-        jFile.seek(0)
-        #Rewrite file with correct data
-        json.dump(jObject, jFile, indent=2)
-        #Truncate new file
-        jFile.truncate()
+    try:
+        #User inputs account they want to access
+        var = input("Enter account number you wish to deposit into:\n")
+    except ValueError:
+        #If number enterred is not an int return an error
+        print("Enter a valid account number!")
+        #Direct user back to deposit function
+        deposit()
+    try:
+        #User input for amount they wish to deposit
+        amount = int(input("Enter amount you with to deposit: (Must be a whole number)\n"))
+    except ValueError:
+        #If amount enterred is not an int return an error
+        print("Amount must be a whole number!")
+        #Direct user back to deposit function
+        deposit()
+    
+    try:    
+        #Opens user file in read+
+        with open("customer.txt", "r+") as jFile:
+            #Assign loaded data to jObject variable
+            jObject = json.load(jFile)
+            #Seek to inputted key and increment the account balance variable by desired amount
+            jObject[var]["Account Balance"] += amount
+            #Seek to beginning of the file
+            jFile.seek(0)
+            #Rewrite file with correct data
+            json.dump(jObject, jFile, indent=2)
+            #Truncate new file
+            jFile.truncate()
+    except KeyError:
+        #If the username does not exist in the database print appropriate error
+        print("Account no was incorrect!")
     #Direct user back to the user menu
     user()
 
@@ -345,19 +413,7 @@ class Account(object):
     #     result += "Account number: " + str(self.acc_no) + "\n"
     #     result += "Account Balance: " + str(self.balance) + "\n"
 
-    #     last = len(self.transactions)
-    #     first = last - 5
-    #     if first < 0:
-    #         first = 0
-
-    #     if last == 0:
-    #         return result
-
-    #     result += "Transactions \n"
-    #     for index in range(last, first, -1):
-    #         result += "#" + str(index) + " acc_Type: " + self.transactions[index - 1][0] + ". Amount: " + str(
-    #             self.transactions[index - 1][1]) + "\n"
-
+   
     #    return result
 
 
@@ -384,7 +440,11 @@ class SavingsAccount(Account):
             #User input for name
             self.name = input("Enter the account holder name:")
             #User input for opening balance
-            self.balance = int(input("Enter The Initial deposit:"))
+            try:
+                self.balance = int(input("Enter The Initial deposit: (Must be a whole number)"))
+            except ValueError:
+                print("Deposit must be a whole number!")
+                user()
             self.acc_type = "Savings"
             
             #Dictionary storing customer data
@@ -443,7 +503,11 @@ class CheckingAccount(Account):
             #User input for name
             self.name = input("Enter the account holder name: ")
             #User input for opening balance
-            self.balance = int(input("Enter The Initial deposit:"))
+            try:
+                self.balance = int(input("Enter The Initial deposit: (Must be a whole number)"))
+            except ValueError:
+                print("Deposit must be a whole number!")
+                user()
             self.acc_type = "Checking"
 
             #Dictionary storing customer data
