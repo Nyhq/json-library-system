@@ -1,17 +1,24 @@
-import json  # Used to write the dictionary data to the txt file https://www.geeksforgeeks.org/write-a-dictionary-to-a-file-in-python/ can be found here
-import os
-from random import randint
+import json
+# Used to write the dictionary data to the txt file https://www.geeksforgeeks.org/write-a-dictionary-to-a-file-in-python/ can be found here
+from json.decoder import JSONDecodeError
+import os  # Used to handle files
+from random import randint  # Used to generate account numbers
 
-username = ''
+username = ''  # Global variable to store username
 
 
 def acc_no_gen():
-    range_start = 4**(4-1)
-    range_end = (4**4)-1
+    """
+    Function used to generate the account number, this is done by using a range of n values and choosing a random number from them
+    """
+    range_start = 5**(5-1)
+    range_end = (5**5)-1
     num = randint(range_start, range_end)
     return num
 
+
 def user():
+    #Prints gui menu to the user
     print("*************************************")
     print("=<< 1. Create new bank account    >>=")
     print("=<< 2. Check Account Details      >>=")
@@ -56,79 +63,148 @@ def user():
         print('Wrong input')
         user()
 
+
 def createSavings():
+    """
+    Funciton call used to generate a savings account. This works by passing the blank account information to the savings account class.
+    
+    The create account function is then called from within that class, finally the user function is prompted again to return our user to the main menu
+    """
     account = SavingsAccount(0, '', 0, '')
     account.createSavingsAccount()
     user()
 
+
 def createChecking():
+    """
+    Funciton call used to generate a Checking account. This works by passing the blank account information to the checking account class.
+    
+    The create account function is then called from within that class, finally the user function is prompted again to return our user to the main menu
+    """
     account = CheckingAccount(0, '', 0, '')
     account.createCheckingAccount()
     user()
 
+
 def account():
+    """
+    Function used to return account balence, it also includes general error checking against incorrect input and missing account numbers.
+    """
     try:
+        #Open the customer file as a json file in read+ mode
         with open("customer.txt", "r+") as jFile:
+            #Assign the loaded json file to jObject var
             jObject = json.load(jFile)
 
+        #Variable to store user input
         var = input("Enter account number:")
-        
-        result = jObject[var]
-        
-        print(result)
-       
+
+        #Finds the result from within the dictionary jObject
+        result = jObject[var]["Account Balance"]
+
+        #Prints out our account details
+        print(f"Account balance is: {result}")
+
+    #Should a value other than an int be passed display an error message
     except ValueError:
         print('Only integers are allowed')
         user()
 
+    #Should an account not be in the system display an error message
+    except KeyError:
+        print("Account does not exist")
+        user()
+
+
 def exit():
+    #Print out exit message and exit program
     print("Thank you for using our banking system!")
 
+
 def login():
+    """
+    Function that facilitates user login and error checking
+    """
     print("         ------Login------           ")
     print("*************************************")
+
+    #Takes user input for username and password
     username = input("Please enter your username:\n")
     password = input(f'Please enter your password:\n')
-    with open('user.txt') as jFile:
+
+    #Opens user file in read mode
+    with open('user.txt', "r") as jFile:
+        #Load the file as a json and assign it to jObject
         jObject = json.load(jFile)
-        
-    if jObject[username]["Username"] == username and jObject[username]["Password"] == password:
+
+    try:
+        #Conditional statement to check if user login matches stored username and password
+        if jObject[username]["Username"] == username and jObject[username]["Password"] == password:
+            #If the username and password match the ones stored print welcome message and direct the user to the user function
            print(f"Welcome {username}")
            user()
-    else:
-        print("Username or password was incorrect!")
+        else:
+            #If the password does not match print error
+            print("Password was incorrect!")
+            #Return user to login function
+            login()
+    except KeyError:
+        #If the username does not exist in the database print appropriate error
+        print("Username was incorrect!")
+        #Return user to login function
         login()
-        
+
+
 def register():
+    """
+    Function to register a new user to our stored user file
+    """
+
+    #Enter user details
     print(f"Enter Details")
-    username = input("Please enter your username:\n")
+    username = input(f"Please enter your username:\n")
     password = input(f'Please enter your password:\n')
     email = input(f'Please enter your email:\n')
     name = input(f'Please enter your full name:\n')
-   
+
+   #Store all user input in a dictionarys
     register_input = {
         username:
             {
-                "Username":username,
-                "Password":password,
-                "Email":email,
-                "Full Name":name,
+                "Username": username,
+                "Password": password,
+                "Email": email,
+                "Full Name": name,
             },
     }
+
+    #If the user file is empty execute loop
     if os.stat('user.txt').st_size == 0:
+        #Open the user file in read+
         with open('user.txt', "r+") as jFile:
-            json.dump(register_input, jFile, indent = 2)
-    else:   
+            #Write the json data to the empty file
+            # Indent beautifies output
+            json.dump(register_input, jFile, indent=2)
+    #Else if the file contains data
+    else:
+        #Load the file in read+
         with open('user.txt', "r+") as jFile:
-                    jObject = json.load(jFile)
-                    jObject.update(register_input)
-                    jFile.seek(0)
-                    json.dump(jObject, jFile, indent = 2)
+            #Assign jObject to loaded data
+            jObject = json.load(jFile)
+            #Append the user data to jObject
+            jObject.update(register_input)
+            #Seek to the start of the file
+            jFile.seek(0)
+            #Overwrite old data with updated data
+            json.dump(jObject, jFile, indent=2)
+    #Direct user to login function
     login()
-    
-       
+
 
 def welcome():
+    """
+    Function to print welcome menu to user
+    """
     print("=====================================")
     print("     ----Welcome to Bank----       ")
     print("*************************************")
@@ -147,68 +223,113 @@ def welcome():
         print('Wrong input')
         welcome()
 
+
 def delete():
-    var = input("=<< Enter account number you wish to close: >>=\n")
+    """
+    Function to delete (close) a bank account
+    """
+
+    #User input for account they wish to close
+    var = input("Enter account number you wish to close:\n")
+
+    #Opens user file in read+
     with open("customer.txt", "r+") as jFile:
+        #Assign loaded data to jObject variable
         jObject = json.load(jFile)
+        #Seek to desired key and delete it
         del(jObject[var])
+        #Seek to beginning of the file
         jFile.seek(0)
-        json.dump(jObject, jFile, indent = 2)
+        #Rewrite file with correct data
+        json.dump(jObject, jFile, indent=2)
+        #Truncate new file
         jFile.truncate()
-    
+    #Direct user back to the user menu
     user()
-    # x = jObject.pop("188")
-    
-    # with open("customer.txt", "r+") as jFile:
-    #   jObject = json.dump(jObject, jFile, indent = 2)
-    # var = input("Please enter the account number that you wish to close:")
-    # x = jObject.pop(var)
+
 
 def withdraw():
+    """
+    Function to withdraw money from a specific account
+    """
+
+    #User inputs account they want to access
     var = input("Enter account number you wish to withdraw from:\n")
+    #User input for amount they wish to withdraw
     amount = int(input("Enter amount you with to withdraw:\n"))
+    #Opens user file in read+
     with open("customer.txt", "r+") as jFile:
+        #Assign loaded data to jObject variable
         jObject = json.load(jFile)
+        #Seek to inputted key and decrement the account balance variable by desired amount
         jObject[var]["Account Balance"] -= amount
+        #Seek to beginning of the file
         jFile.seek(0)
-        json.dump(jObject, jFile, indent = 2)
+        #Rewrite file with correct data
+        json.dump(jObject, jFile, indent=2)
+        #Truncate new file
         jFile.truncate()
-    
+    #Direct user back to the user menu
     user()
+
 
 def deposit():
+    """
+    Function to deposit money to a specific account
+    """
+
+    #User inputs account they want to access
     var = input("Enter account number you wish to deposit into:\n")
+    #User input for amount they wish to deposit
     amount = int(input("Enter amount you with to deposit:\n"))
+    #Opens user file in read+
     with open("customer.txt", "r+") as jFile:
+        #Assign loaded data to jObject variable
         jObject = json.load(jFile)
+        #Seek to inputted key and increment the account balance variable by desired amount
         jObject[var]["Account Balance"] += amount
+        #Seek to beginning of the file
         jFile.seek(0)
-        json.dump(jObject, jFile, indent = 2)
+        #Rewrite file with correct data
+        json.dump(jObject, jFile, indent=2)
+        #Truncate new file
         jFile.truncate()
-    
+    #Direct user back to the user menu
     user()
 
-def balence():
-    return
 
 def transfer():
+    """
+    Function to transfer money between accounts
+    """
+    #User inputs account they want to access
     var1 = input("Enter account number you wish to transfer from:\n")
+    #User inputs account they want to transfer to
     var2 = input("Enter account number you wish to transfer to:\n")
+    #User input for amount they wish to transfer
     amount = int(input("Enter amount you with to transfer:\n"))
+    #Opens user file in read+
     with open("customer.txt", "r+") as jFile:
+        #Assign loaded data to jObject variable
         jObject = json.load(jFile)
+        #Seek to inputted key and decrement the account balance variable by desired amount
         jObject[var1]["Account Balance"] -= amount
+        #Seek to inputted key and increment the account balance variable by desired amount
         jObject[var2]["Account Balance"] += amount
+        #Seek to beginning of the file
         jFile.seek(0)
-        json.dump(jObject, jFile, indent = 2)
+        #Rewrite file with correct data
+        json.dump(jObject, jFile, indent=2)
+        #Truncate new file
         jFile.truncate()
-    
+    #Direct user back to the user menu
     user()
 
-def selectAccount():
-    acc_select = input("Enter account you wish to select:")
 
 class Account(object):
+    """
+    Account definition for general account attributes
+    """
     def __init__(self, acc_no, name, balance, acc_type, transactions=None):
         self.acc_no = acc_no
         self.name = name
@@ -241,22 +362,34 @@ class Account(object):
 
 
 class SavingsAccount(Account):
+    """
+    Savings account class definition and functions
+    """
+    #Inherit Account class variables
     def __init__(self, acc_no, name, balance, acc_type, transactions=None):
         super().__init__(acc_no, name, balance, acc_type, transactions=transactions)
 
+    #Function to create a new savings account
     def createSavingsAccount(self):
+        #Get age input from user
         age_chk = int(input("Enter your age:"))
-        if age_chk < 14 :
+        #If input is less that the minimum account age print an error message
+        if age_chk < 14:
             print("User too young for selected account type!")
             user()
-        else: 
+        #Otherwise allow the user to create an account
+        else:
+            #Assign result of acc_no_gen funtion to the acc no variable
             self.acc_no = acc_no_gen()
+            #User input for name
             self.name = input("Enter the account holder name:")
+            #User input for opening balance
             self.balance = int(input("Enter The Initial deposit:"))
             self.acc_type = "Savings"
             
+            #Dictionary storing customer data
             customer_input_data = {
-                self.acc_no: 
+                self.acc_no:
                     {
                         'Account Number': self.acc_no,
                         'Account Name': self.name.title(),
@@ -264,81 +397,113 @@ class SavingsAccount(Account):
                         'Account Type': self.acc_type
                     },
             }
+            #Display success message
             print(f"An account with account number {self.acc_no} has been opened for {self.name}")
+            
+            #If the customer file is empty execute loop
             if os.stat('customer.txt').st_size == 0:
-                with open('customer.txt', 'w') as obj:
-                    json.dump(customer_input_data, obj, indent = 2)
+                #Open the customer file in read+
+                with open('customer.txt', 'r+') as jFile:
+                    #Write the json data to the empty file
+                    json.dump(customer_input_data, jFile, indent=2)
+            #Else if the file contains data
             else:
-                with open('customer.txt', "r+") as obj:
-                        data = json.load(obj)
-                        data.update(customer_input_data)
-                        obj.seek(0)
-                        json.dump(data, obj, indent = 2)
-                        
+                #Load the file in read+
+                with open('customer.txt', "r+") as jFile:
+                    #Assign jObject to loaded data
+                    jObject = json.load(jFile)
+                    #Append the customer data to jObject
+                    jObject.update(customer_input_data)
+                    #Seek to the start of the file
+                    jFile.seek(0)
+                    #Overwrite old data with updated data
+                    json.dump(jObject, jFile, indent=2)
 
 
 class CheckingAccount(Account):
+    """
+    Checking account class definition and functions
+    """
+    #Inherit Account class variables
     def __init__(self, acc_no, name, balance, acc_type, transactions=None):
         super().__init__(acc_no, name, balance, acc_type, transactions=transactions)
 
+    #Function to create a new current account
     def createCheckingAccount(self):
+        #Get age input from user
         age_chk = int(input("Enter your age:"))
-        if age_chk < 18 :
+        #If input is less that the minimum account age print an error message
+        if age_chk < 18:
             print("User too young for selected account type!")
             user()
+        #Otherwise allow the user to create an account
         else:
+            #Assign result of acc_no_gen funtion to the acc no variable
             self.acc_no = acc_no_gen()
+            #User input for name
             self.name = input("Enter the account holder name: ")
+            #User input for opening balance
             self.balance = int(input("Enter The Initial deposit:"))
             self.acc_type = "Checking"
 
+            #Dictionary storing customer data
             customer_input_data = {
-                self.acc_no: 
-                        {
-                            'Account Number': self.acc_no,
-                            'Account Name': self.name.title(),
-                            'Account Balance': self.balance,
-                            'Account Type': self.acc_type
-                        },
+                self.acc_no:
+                {
+                    'Account Number': self.acc_no,
+                    'Account Name': self.name.title(),
+                    'Account Balance': self.balance,
+                    'Account Type': self.acc_type
+                },
             }
-            
+
+            #Display success message
             print(f"An account with account number {self.acc_no} has been opened for {self.name}")
+            
+            #If the customer file is empty execute loop
             if os.stat('customer.txt').st_size == 0:
-                with open('customer.txt', 'w') as obj:
-                    json.dump(customer_input_data, obj, indent = 2)
+                #Open the customer file in read+
+                with open('customer.txt', 'r+') as jFile:
+                    #Write the json data to the empty file
+                    json.dump(customer_input_data, jFile, indent=2)
+            #Else if the file contains data
             else:
-                with open('customer.txt', "r+") as obj:
-                        data = json.load(obj)
-                        data.update(customer_input_data)
-                        obj.seek(0)
-                        json.dump(data, obj, indent = 2)
+                #Load the file in read+
+                with open('customer.txt', "r+") as jFile:
+                    #Assign jObject to loaded data
+                    data = json.load(jFile)
+                    #Append the customer data to jObject
+                    data.update(customer_input_data)
+                    #Seek to the start of the file
+                    jFile.seek(0)
+                    #Overwrite old data with updated data
+                    json.dump(data, jFile, indent=2)
 
 
 welcome()
 
 
-
-# with open("user.txt") as jFile:
-#     jObject = json.load(jFile)
-#     jFile.close()
-
-
-# with open("customer.txt") as jFile:
-#     jObject = json.load(jFile)
-#     jFile.close()
-
-# var = input("Acc No")
-
-# testUser = jObject[var]['Account Name']
+"""
+with open("user.txt") as jFile:
+    jObject = json.load(jFile)
+    jFile.close()
 
 
-# print(testUser)
+with open("customer.txt") as jFile:
+    jObject = json.load(jFile)
+    jFile.close()
 
-# sean = jObject["2"]
-# print(sean)
+var = input("Acc No")
+
+testUser = jObject[var]['Account Name']
 
 
+print(testUser)
+
+sean = jObject["2"]
+print(sean)
 
 
-# acc = Account(123,"testacc", 250, "Savings")
-# print(acc)
+acc = Account(123,"testacc", 250, "Savings")
+print(acc)
+"""
